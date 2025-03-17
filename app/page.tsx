@@ -8,5 +8,7 @@ export default function Home() {
       Lazy
     </h1>
   </div>
-  );
+
+
+);
 }

@@ -1,46 +1,57 @@
-// app/upload/page.tsx
 'use client';
 
-import { useState, FormEvent } from 'react';
+import React, { useState, FormEvent } from 'react';
 
 export default function UploadPage() {
   const [score, setScore] = useState<number | null>(null);
   const [similarity, setSimilarity] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Handle form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    const formData = new FormData(e.currentTarget);
-    // The taskId will be included automatically since its input has a name attribute
+
+    const formData = new FormData(e.currentTarget); 
+    // This automatically includes the file from the file input 
+    // and the taskId if you gave it a `name="taskId"` attribute.
+
     try {
-      const res = await fetch('/api/evaluate', {
+      const response = await fetch('/api/evaluate', {
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
+      const data = await response.json();
+      if (response.ok) {
         setScore(data.score);
         setSimilarity(data.similarity);
+      } else {
+        setError(data.error || 'Something went wrong.');
       }
     } catch (err) {
       console.error(err);
-      setError('Failed to evaluate the submission.');
+      setError('Failed to upload and evaluate the file.');
     }
   };
 
   return (
     <div>
-      <h1>Upload Your DOCX File for Evaluation</h1>
+      <h1>Upload DOCX File</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="docxFile">DOCX File:</label>
-          <input type="file" id="docxFile" name="file" accept=".docx" required />
+          <label htmlFor="docxFile">Select DOCX File:</label>
+          <input
+            type="file"
+            id="docxFile"
+            name="file"
+            accept=".docx"
+            required
+          />
         </div>
-        <button type="submit">Submit</button>
+
+        <button type="submit">Upload & Evaluate</button>
       </form>
+
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {score !== null && similarity !== null && (
         <div>
