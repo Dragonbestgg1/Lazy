@@ -1,13 +1,12 @@
 "use client"
 
-import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-     <h1 className="font-bold text-left text-6xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
-        Lazy
-      </h1>
-    </div>
+    <div className="custom-bg min-h-screen py-3 px-3 ">
+    <h1 className="cursor-default font-bold text-left text-6xl bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent inline-block">
+      Lazy
+    </h1>
+  </div>
   );
 }
