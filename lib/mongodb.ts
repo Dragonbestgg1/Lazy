@@ -1,22 +1,42 @@
-import { MongoClient } from "mongodb";
-
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable");
-}
+import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
 const options = {};
 
-let client = new MongoClient(uri, options);
-let clientPromise: Promise<MongoClient>;
-
-if (process.env.NODE_ENV === "development") {
-  if (!(global as any)._mongoClientPromise) {
-    (global as any)._mongoClientPromise = client.connect();
-  }
-  clientPromise = (global as any)._mongoClientPromise;
-} else {
-  clientPromise = client.connect();
+if (!uri) {
+  throw new Error('Please add your MongoDB URI to .env.local');
 }
 
-export default clientPromise;
+let clientPromise: Promise<MongoClient> | null = null;
+
+async function createMongoClientPromise(): Promise<MongoClient> {
+
+    const mongoUri: string = uri as string;
+  
+    const newClient = new MongoClient(mongoUri, options);
+    try {
+      const client = await newClient.connect();
+      if (process.env.NODE_ENV === 'development') {
+        console.log('MongoDB connected (development mode)');
+      } else {
+        console.log('MongoDB connected (production mode)');
+      }
+      return client;
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('MongoDB connection error (development mode):', error);
+      } else {
+        console.error('MongoDB connection error (production mode):', error);
+      }
+      throw error;
+    }
+  }
+
+async function getMongoClientPromise(): Promise<MongoClient> {
+  if (!clientPromise) {
+    clientPromise = createMongoClientPromise();
+  }
+  return clientPromise;
+}
+
+export default getMongoClientPromise;

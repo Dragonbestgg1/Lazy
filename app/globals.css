@@ -6,6 +6,9 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+* {
+  user-select: none;
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -41,4 +44,36 @@ body {
   background-position: center;
   opacity: 0.3; 
   z-index: -1;
+}
+
+.glow-box {
+  box-shadow: 0 0 7px 4px rgba(255, 255, 255, 0.6);
+  animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 3px 1px rgba(255, 255, 255, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 4px 2px rgba(255, 255, 255, 0.8);
+  }
+}
+
+.glow-purple {
+  box-shadow: 0 0 7px 4px rgba(177, 85, 197, 0.6);
+  animation: pulse-purple 2s infinite alternate;
+}
+
+@keyframes pulse-purple {
+  0% {
+    box-shadow: 0 0 3px 1px rgba(177, 85, 197, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 4px 2px rgba(177, 85, 197, 0.8);
+  }
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Makes the default icon appear white */
 }

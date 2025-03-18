@@ -2,16 +2,22 @@
 
 import React, { useState, FormEvent } from 'react';
 
-export default function UploadPage() {
+interface UploadPageProps {
+  taskId: string;
+  requirements: string[] | string;
+}
+
+export default function UploadPage({ taskId, requirements }: UploadPageProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [taskId, setTaskId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [score, setScore] = useState<number | null>(null);
   const [similarity, setSimilarity] = useState<number | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      console.log("Selected file:", file.name);
+      setSelectedFile(file);
     }
   };
 
@@ -19,13 +25,21 @@ export default function UploadPage() {
     e.preventDefault();
     setError(null);
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData();
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+      formData.append('taskId', taskId);
+      formData.append('requirements', JSON.stringify(requirements));
+    }
+
     try {
       const response = await fetch('/api/evaluate', {
         method: 'POST',
         body: formData,
       });
+
       const data = await response.json();
+
       if (response.ok) {
         setScore(data.score);
         setSimilarity(data.similarity);
@@ -33,30 +47,57 @@ export default function UploadPage() {
         setError(data.error || 'Something went wrong.');
       }
     } catch (err) {
-      console.error(err);
       setError('Failed to upload the file.');
     }
   };
 
   return (
-    <div>
-      <h1>Upload Your Documentation</h1>
-      <p>Augšupielādē savu dokumentāciju (PDF, DOCX, TXT u.c.)</p>
-      <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <div>
-          <label htmlFor="taskId">Task ID:</label>
-          <input
-            type="text"
-            id="taskId"
-            name="taskId"
-            value={taskId}
-            onChange={(e) => setTaskId(e.target.value)}
-            placeholder="Enter Task ID"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="docFile">Select File:</label>
+    <div className="w-full max-w-md bg-[rgba(0,0,0,0.5)] border-2 border-[#505178] border-opacity-60 p-6 rounded-2xl shadow-lg space-y-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-gray-100">Augšupielādē savu dokumentu</h1>
+      </div>
+
+      <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="docFile" className="text-sm font-medium text-gray-100">
+            Izvēlies failu:
+          </label>
+
+          <label
+            htmlFor="docFile"
+            className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-[#5356c1]
+            bg-[rgba(0,0,0,0.3)] rounded-lg cursor-pointer transition"
+          >
+            {selectedFile ? (
+              <div className="flex flex-col items-center text-center">
+                <svg
+                  className="w-10 h-10 text-green-400 mb-2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <p className="text-sm text-white font-medium break-all px-4">{selectedFile.name}</p>
+                <p className="text-xs text-gray-300 mt-1">Fails pievienots</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <svg
+                  className="w-10 h-10 text-blue-400 mb-2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16V8m0 0L9.5 9.5M12 8l2.5 1.5M4 12a8 8 0 1116 0 8 8 0 01-16 0z" />
+                </svg>
+                <span className="text-sm text-blue-100">Klikšķini vai ievelc dokumentu šeit</span>
+                <span className="text-xs text-gray-300 mt-1">(.pdf, .docx, .txt)</span>
+              </div>
+            )}
+          </label>
           <input
             type="file"
             id="docFile"
@@ -64,18 +105,29 @@ export default function UploadPage() {
             accept=".pdf,.docx,.txt"
             onChange={handleFileChange}
             required
+            className="hidden"
           />
         </div>
-        <button type="submit" disabled={!selectedFile || !taskId}>
-          Upload
+
+        <button
+          type="submit"
+          disabled={!selectedFile}
+          className={`w-full py-2 px-4 rounded-lg font-semibold text-white transition ${
+            !selectedFile ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
+          }`}
+        >
+          Iesniegt
         </button>
       </form>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="text-center text-sm text-red-600">{error}</p>}
+
       {score !== null && similarity !== null && (
-        <div>
-          <p>Score: {score}</p>
-          <p>Similarity: {similarity.toFixed(2)}</p>
+        <div className="text-center mt-4 space-y-1">
+          <p className="text-sm font-medium text-gray-200">Score: {score}</p>
+          <p className="text-sm font-medium text-gray-200">
+            Similarity: {typeof similarity === 'number' ? similarity.toFixed(2) : "N/A"}
+          </p>
         </div>
       )}
     </div>
