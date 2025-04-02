@@ -3,29 +3,26 @@
 import { useEffect, useState } from "react";
 
 interface Lesson {
-  period: number;
-  time: string;
+  day: string;
+  group: string;
   subject: string;
-  teacher: string;
-  location: string;
+  startTime: string;
+  endTime: string;
 }
 
-export default function ScrapedData() {
+export default function ScrapedDataPage() {
   const [data, setData] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const teacherName = "koordinators";
-
   useEffect(() => {
-    fetch(`/api/scrape?teacher=${encodeURIComponent(teacherName)}`)
-      .then((res) => res.json())
+    fetch("/api/scrape?teacher=" + encodeURIComponent("Toms Ričards Krieviņš"))
+      .then((res) => {
+        if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+        return res.json();
+      })
       .then((response) => {
-        if (response.error) {
-          setError(response.error);
-        } else {
-          setData(response.data);
-        }
+        setData(response.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -33,24 +30,38 @@ export default function ScrapedData() {
         setError("Error fetching scraped data");
         setLoading(false);
       });
-  }, [teacherName]);
+  }, []);
 
   if (loading) return <p>Loading scraped data...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (data.length === 0) return <p>No lessons found for teacher "{teacherName}".</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (data.length === 0)
+    return <p>No lessons found for teacher "Toms Ričards Krieviņš".</p>;
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Lessons for {teacherName}</h1>
-      <ul>
-        {data.map((lesson, idx) => (
-          <li key={idx} className="mb-2 p-2 border rounded">
-            <p><strong>Period:</strong> {lesson.period}</p>
-            <p><strong>Time:</strong> {lesson.time}</p>
-            <p><strong>Subject:</strong> {lesson.subject}</p>
-          </li>
-        ))}
-      </ul>
+    <div style={{ padding: "1rem" }}>
+      <h1>Timetable for Toms Ričards Krieviņš</h1>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th style={{ border: "1px solid #ccc", padding: "0.5rem" }}>Day</th>
+            <th style={{ border: "1px solid #ccc", padding: "0.5rem" }}>Start Time</th>
+            <th style={{ border: "1px solid #ccc", padding: "0.5rem" }}>End Time</th>
+            <th style={{ border: "1px solid #ccc", padding: "0.5rem" }}>Group</th>
+            <th style={{ border: "1px solid #ccc", padding: "0.5rem" }}>Subject</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((lesson, idx) => (
+            <tr key={idx}>
+              <td style={{ border: "1px solid #ccc", padding: "0.5rem" }}>{lesson.day}</td>
+              <td style={{ border: "1px solid #ccc", padding: "0.5rem" }}>{lesson.startTime}</td>
+              <td style={{ border: "1px solid #ccc", padding: "0.5rem" }}>{lesson.endTime}</td>
+              <td style={{ border: "1px solid #ccc", padding: "0.5rem" }}>{lesson.group}</td>
+              <td style={{ border: "1px solid #ccc", padding: "0.5rem" }}>{lesson.subject}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

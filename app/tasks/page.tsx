@@ -57,14 +57,15 @@ export default function CreateTaskPage() {
 
   return (
     <div className="custom-bg min-h-screen py-3 px-3">
+      <div className="px-3">
       <a href="http://localhost:3000/">
       <h1
         className="cursor-pointer font-bold text-left text-6xl bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 
-          bg-clip-text text-transparent inline-block transition-all duration-300 ease-in-out hover:scale-103 hover:from-indigo-500 hover:via-fuchsia-500 hover:to-orange-400">
+          bg-clip-text text-transparent inline-block transition-all duration-300 ease-in-out hover:scale-[1.03] hover:from-indigo-500 hover:via-fuchsia-500 hover:to-orange-400">
         Lazy
       </h1>
       </a>
-
+      </div>
       <div className="mt-12 flex justify-center items-center">
         <div className="w-full max-w-lg mx-auto bg-[rgba(0,0,0,0.5)] border border-[#505178] rounded-xl p-6 space-y-6 glow-box">
           <h1 className="text-3xl font-bold font-poppins text-center text-gray-800 dark:text-gray-100">

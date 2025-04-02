@@ -13,6 +13,9 @@ export default function UploadPage({ taskId, requirements }: UploadPageProps) {
   const [score, setScore] = useState<number | null>(null);
   const [similarity, setSimilarity] = useState<number | null>(null);
 
+  // Generate a unique id for the file input by concatenating a prefix with the taskId.
+  const fileInputId = `docFile-${taskId}`;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -32,23 +35,23 @@ export default function UploadPage({ taskId, requirements }: UploadPageProps) {
       formData.append('requirements', JSON.stringify(requirements));
     }
 
-    try {
-      const response = await fetch('/api/evaluate', {
-        method: 'POST',
-        body: formData,
-      });
+    // try {
+    //   const response = await fetch('/api/evaluate', {
+    //     method: 'POST',
+    //     body: formData,
+    //   });
 
-      const data = await response.json();
+    //   const data = await response.json();
 
-      if (response.ok) {
-        setScore(data.score);
-        setSimilarity(data.similarity);
-      } else {
-        setError(data.error || 'Something went wrong.');
-      }
-    } catch (err) {
-      setError('Failed to upload the file.');
-    }
+    //   if (response.ok) {
+    //     setScore(data.score);
+    //     setSimilarity(data.similarity);
+    //   } else {
+    //     setError(data.error || 'Something went wrong.');
+    //   }
+    // } catch (err) {
+    //   setError('Failed to upload the file.');
+    // }
   };
 
   return (
@@ -59,12 +62,12 @@ export default function UploadPage({ taskId, requirements }: UploadPageProps) {
 
       <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
         <div className="flex flex-col space-y-2">
-          <label htmlFor="docFile" className="text-sm font-medium text-gray-100">
+          <label htmlFor={fileInputId} className="text-sm font-medium text-gray-100">
             Izvēlies failu:
           </label>
 
           <label
-            htmlFor="docFile"
+            htmlFor={fileInputId}
             className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-[#5356c1]
             bg-[rgba(0,0,0,0.3)] rounded-lg cursor-pointer transition"
           >
@@ -100,7 +103,7 @@ export default function UploadPage({ taskId, requirements }: UploadPageProps) {
           </label>
           <input
             type="file"
-            id="docFile"
+            id={fileInputId}
             name="file"
             accept=".pdf,.docx,.txt"
             onChange={handleFileChange}
@@ -112,8 +115,8 @@ export default function UploadPage({ taskId, requirements }: UploadPageProps) {
         <button
           type="submit"
           disabled={!selectedFile}
-          className={`w-full py-2 px-4 rounded-lg font-semibold text-white transition ${
-            !selectedFile ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
+          className={`w-full py-2 px-4 rounded-lg cursor-pointer font-semibold text-white transition ${
+            !selectedFile ? 'bg-gray-400 cursor-pointer' : 'bg-purple-600 hover:bg-purple-700'
           }`}
         >
           Iesniegt

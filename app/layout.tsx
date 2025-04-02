@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./Providers"; // adjust the path as necessary
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,20 +15,18 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Lazy Work",
-  description: "Webpage for lazt workers, that work with docx files",
+  description: "Webpage for lazy workers, that work with docx files",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

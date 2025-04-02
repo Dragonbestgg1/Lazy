@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Auth() {
-  const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
+  const router = useRouter();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -14,7 +16,7 @@ export default function Auth() {
   };
 
   const validatePassword = (password: string) => {
-    return password.length >= 8; 
+    return password.length >= 8;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -30,28 +32,25 @@ export default function Auth() {
       return;
     }
 
-    // Submit form
-    const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login";
-    try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
+    // Use NextAuth signIn with the credentials provider
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
 
-      if (res.ok) {
-        setMessage({ type: "success", text: data.message });
-      } else {
-        setMessage({ type: "error", text: data.error });
-      }
-    } catch (error: any) {
-      setMessage({ type: "error", text: "Kļūda: Neizdevās pieslēgties" });
+    if (res?.ok) {
+      setMessage({ type: "success", text: "Login successful" });
+      // Redirect to a protected route after successful login
+      router.push("/");
+    } else {
+      setMessage({ type: "error", text: "Invalid admin credentials" });
     }
   };
 
   return (
     <div className="custom-bg min-h-screen py-3 px-3">
+      <div className="px-3">
       <a href="http://localhost:3000/">
         <h1
           className="cursor-pointer font-bold text-left text-6xl bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 
@@ -60,6 +59,7 @@ export default function Auth() {
           Lazy
         </h1>
       </a>
+      </div>
       <div className="mt-10 flex items-center justify-center">
         <div className="w-full max-w-md p-8 bg-white dark:bg-[rgba(0,0,0,0.5)] glow-purple border-2 border-[#505178] rounded-2xl shadow-xl space-y-6 transition-all duration-300">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white">
@@ -73,7 +73,6 @@ export default function Auth() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200"
-                
               />
             </div>
             <div>
@@ -83,7 +82,6 @@ export default function Auth() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200"
-            
               />
             </div>
             <button
